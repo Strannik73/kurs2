@@ -1,0 +1,74 @@
+#bd {
+    background:linear-gradient(#69cbf8,#eef3ff );
+    display: block;
+    background-size: 110vw 100vh;;
+    background-repeat: no-repeat; 
+    background-position: 0% 0%;
+
+}
+.title{
+    display:flex;
+    font-size: 30px;
+    align-items:center;
+    justify-content:center;
+}
+.title-1{
+    display:flex;
+    font-size: 20px;
+    align-items:center;
+    justify-content:center;
+}
+#obl-goroda{
+    margin-top: 4%;
+    margin-left:5%;
+    margin-right: 5%;
+    background:#e4fffd;
+    border: 3px solid #000;
+    border-radius:12px;
+    direction: column;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    padding:28px;
+    font-size:16px;
+}
+.obl_gor{
+    font-size: 11px;
+    margin-bottom: 10px;
+    border: 2px solid #000;
+    border-radius:12px;
+    padding: 2%;
+    background-color: #ecedee;
+}
+.coord{
+    margin-top: 2%;
+    margin-left:5%;
+    margin-right: 5%;
+    background:#e4fffd;
+    border-radius:12px;
+    padding:16px;
+    box-shadow:0 6px 18px rgba(18,38,63,0.08);
+    margin-bottom:14px;
+    border: 3px solid #000;
+}
+#lat, #lon{
+    border-radius:4px;
+    border: 2px solid #000;
+}
+#pogodaBtn{
+    margin-top: 2%;
+    background-color: #e1eef8;
+    border-radius:4px;
+}
+.resultat{
+    margin-top: 1%;
+    margin-left:5%;
+    margin-right: 5%;
+    background:#ffffff;
+    border-radius:12px;
+    padding:16px;
+    box-shadow:0 6px 18px rgba(18,38,63,0.06);
+    margin-top:8px;
+    display:none;
+    border: 3px solid #000;
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body id="bd">
+    <p class="title">Погода в Бералуси</p>
+    <section id="obl-goroda">
+        <img class="BELARUS" src="" alt="">
+        <p class="title-1">Погода в областных городах</p>
+        <div id="knopki">
+            <button class="obl_gor" id="minsk">Минск</button>
+            <button class="obl_gor" id="gomel">Гомель</button>
+            <button class="obl_gor" id="mogilev">Могилев</button>
+            <button class="obl_gor" id="vitebsk">Витебск</button>
+            <button class="obl_gor" id="grodno">Гродно</button>
+            <button class="obl_gor" id="berst">Брест</button>
+        </div>
+    </section>
+    <form id="coord" class="coord">
+        <p>Поиск погоды по координатам</p>
+        <label for="lat">Широта:</label>
+        <input id="lat" name="lat" inputmode="decimal" placeholder="lat" required />
+
+        <label for="lon">Долгота:</label>
+        <input id="lon" name="lon" inputmode="decimal" placeholder="lon" required />
+
+        <div class="pogoda">
+            <button type="submit" id="pogodaBtn">Показать погоду</button>
+        </div>
+
+        <p id="msg" class="msg" aria-live="polite"></p>
+    </form>
+    <section id="resultat" class="resultat" aria-live="polite">
+        <div class="top">
+            <h2 id="city">—</h2>
+            <div class="temp" id="temp">—°C</div>
+        </div>
+
+        <div class="weather-row">
+            <img id="kartinka" alt="" class="kartinka" />
+            <div id="txt" class="txt">—</div>
+        </div>
+    </section>
+</body>
+</html>
