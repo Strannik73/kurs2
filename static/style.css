@@ -1,90 +1,90 @@
 #bd {
-    background:linear-gradient(#69cbf8,#eef3ff );
+    background:linear-gradient(#46c4ff,#ffffff );
     display: block;
     background-size: 110vw 100vh;;
     background-repeat: no-repeat; 
     background-position: 0% 0%;
 
 }
-.title{
+.title-1{
     display:flex;
     font-size: 30px;
     align-items:center;
     justify-content:center;
 }
-.title-1{
-    display:flex;
-    font-size: 20px;
-    align-items:center;
-    justify-content:center;
-}
 #obl-goroda{
-    display:flex;
-    direction: column;
-    flex-direction: column;
-    align-items:center;
-    margin-top: 4%;
-    margin-left:5%;
-    margin-right: 5%;
+    display: block;
     background:#ffffff;
     border: 3px solid #000;
     border-radius:12px;
     padding:28px;
     font-size:16px;
-    width: 600px;
-    height: 600px;
+    margin: 4% auto;
+    position: relative;
+    box-sizing: border-box; 
+
+    width: 660px;
+    height: 675px;
 }
 .obl_gor{
-    position: absolute;
-    font-size: 11px;
-    margin-bottom: 10px;
+    position: absolute;        
+    height: 36px;              
+    line-height: 36px;         
+    font-size: 13px;             
+    text-align: center;
+    box-sizing: border-box;
+    margin: 0;                  
     border: 2px solid #000;
     border-radius:20px;
-    padding: 1.5%;
+    padding: 0 10px;            
     background-color: #7ef07e;
+    cursor: pointer;
 
 }
 #minsk{
     position: absolute;
-    top: 51%;
-    left: 43%;
+    top: 56%;
+    left: 41%;
 }
 #gomel{
     position: absolute;
-    top: 68%;
-    left: 71%;
+    top: 75.5%;
+    left: 74%;
 }
 #mogilev{
     position: absolute;
-    top: 51%;
-    left: 68%;
+    top: 54%;
+    left: 70%;
 }
 #vitebsk{
     position: absolute;
-    top: 34%;
-    left: 64%;
+    top: 30%;
+    left: 63%;
 }
 #grodno{
     position: absolute;
-    top: 52%;
-    left: 15.5%;
+    top: 54.5%;
+    left: 10.5%;
 }
 #berst{
     position: absolute;
-    top: 70%;
-    left: 13.5%;
+    top: 77%;
+    left: 8%;
 }
 
 .coord{
-    margin-top: 2%;
-    margin-left:5%;
-    margin-right: 5%;
-    background:#e4fffd;
-    border-radius:12px;
-    padding:16px;
-    box-shadow:0 6px 18px rgba(18,38,63,0.08);
-    margin-bottom:14px;
+    width: 600px;               
+    height: 150px;             
+    margin: 18px auto;          
+    padding: 16px;
+    box-sizing: border-box;
+    background: #e4fffd;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(18,38,63,0.08);
     border: 3px solid #000;
+    position: relative;        
+    overflow: visible;
+    display: block;
 }
 #lat, #lon{
     border-radius:4px;
@@ -99,7 +99,7 @@
     margin-top: 1%;
     margin-left:5%;
     margin-right: 5%;
-    background:#ffffff;
+    background-color:#4ba3b9;
     border-radius:12px;
     padding:16px;
     box-shadow:0 6px 18px rgba(18,38,63,0.06);
