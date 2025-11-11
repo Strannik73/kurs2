@@ -96,6 +96,12 @@
     border-radius:4px;
 }
 .resultat{
+    margin: 4% auto;
+    position: relative;
+    box-sizing: border-box; 
+
+    width: 960px;
+    height: 975px;
     background-color:#4ba3b9;
     border-radius:12px;
     padding:16px;
@@ -111,6 +117,6 @@
 }
 #imgG{
   max-width: 100%;  
-  width: 80;    
+  width: 95%;    
   height: auto;
 }
