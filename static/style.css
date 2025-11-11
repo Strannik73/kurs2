@@ -96,14 +96,21 @@
     border-radius:4px;
 }
 .resultat{
-    margin-top: 1%;
-    margin-left:5%;
-    margin-right: 5%;
     background-color:#4ba3b9;
     border-radius:12px;
     padding:16px;
     box-shadow:0 6px 18px rgba(18,38,63,0.06);
     margin-top:8px;
-    display:none;
     border: 3px solid #000;
+}
+.gomel-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+}
+#imgG{
+  max-width: 100%;  
+  width: 80;    
+  height: auto;
 }
