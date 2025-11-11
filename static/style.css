@@ -19,27 +19,62 @@
     justify-content:center;
 }
 #obl-goroda{
+    display:flex;
+    direction: column;
+    flex-direction: column;
+    align-items:center;
     margin-top: 4%;
     margin-left:5%;
     margin-right: 5%;
-    background:#e4fffd;
+    background:#ffffff;
     border: 3px solid #000;
     border-radius:12px;
-    direction: column;
-    display:flex;
-    flex-direction: column;
-    align-items:center;
     padding:28px;
     font-size:16px;
+    width: 600px;
+    height: 600px;
 }
 .obl_gor{
+    position: absolute;
     font-size: 11px;
     margin-bottom: 10px;
     border: 2px solid #000;
-    border-radius:12px;
-    padding: 2%;
-    background-color: #ecedee;
+    border-radius:20px;
+    padding: 1.5%;
+    background-color: #7ef07e;
+
 }
+#minsk{
+    position: absolute;
+    top: 51%;
+    left: 43%;
+}
+#gomel{
+    position: absolute;
+    top: 68%;
+    left: 71%;
+}
+#mogilev{
+    position: absolute;
+    top: 51%;
+    left: 68%;
+}
+#vitebsk{
+    position: absolute;
+    top: 34%;
+    left: 64%;
+}
+#grodno{
+    position: absolute;
+    top: 52%;
+    left: 15.5%;
+}
+#berst{
+    position: absolute;
+    top: 70%;
+    left: 13.5%;
+}
+
 .coord{
     margin-top: 2%;
     margin-left:5%;
