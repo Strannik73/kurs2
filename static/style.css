@@ -71,10 +71,9 @@
     top: 77%;
     left: 8%;
 }
-
 .coord{
     width: 600px;               
-    height: 150px;             
+    height: 300px;             
     margin: 18px auto;          
     padding: 16px;
     box-sizing: border-box;
@@ -127,6 +126,7 @@
     position: absolute;
     font-size: 10px;;
 }
+
 #br{
     top: 57%;
     left: 60%;
