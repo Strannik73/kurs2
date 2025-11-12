@@ -99,24 +99,115 @@
     margin: 4% auto;
     position: relative;
     box-sizing: border-box; 
-
-    width: 960px;
-    height: 975px;
-    background-color:#4ba3b9;
+    max-width: 800px;
+    max-height: 1100px;
+    min-width: 800px;
+    min-height: 750px;
+    background-color:#86e0e0;
     border-radius:12px;
     padding:16px;
     box-shadow:0 6px 18px rgba(18,38,63,0.06);
     margin-top:8px;
     border: 3px solid #000;
 }
-.gomel-header {
+.header {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 12px;
 }
 #imgG{
-  max-width: 100%;  
-  width: 95%;    
-  height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90%;    
+    height: 80%;
+}
+.rg_gor{
+    position: absolute;
+    font-size: 10px;;
+}
+#br{
+    top: 57%;
+    left: 60%;
+}
+#buda{
+    top: 25%;
+    left: 63%;
+}
+#vetka{
+    top: 25%;
+    left: 77%;
+}
+#gom{
+    top: 39%;
+    left: 71%;
+}
+#dobrush{
+    top: 38%;
+    left: 81%;
+}
+#elsk{
+    top: 55%;
+    left: 35%;
+}
+#zhit{
+    top: 35%;
+    left: 12%;
+}
+#zhlobin{
+    top: 20%;
+    left: 54%;
+}
+#kalin{
+    top: 38%;
+    left: 42%;
+}
+#korm{
+    top: 10%;
+    left: 69%;
+}
+#lel{
+    top: 53%;
+    left: 19%;
+}
+#loev{
+    top: 46%;
+    left: 67%;
+}
+#moz{
+    top: 47%;
+    left: 37%;
+}
+#narovl{
+    top: 59%;
+    left: 45%;
+}
+#oktyabr{
+    top: 26%;
+    left: 34%;
+}
+#petr{
+    top: 38%;
+    left: 27%;
+}
+#rech{
+    top: 35%;
+    left: 58%;
+}
+#rogach{
+    top: 10%;
+    left: 58%;
+}
+#svetl{
+    top: 28%;
+    left: 46%;
+}
+#hoyniki{
+    top: 51.5%;
+    left: 51.5%;
+}
+#chechersk{
+    top: 16%;
+    left: 74%;
 }
