@@ -1,28 +1,21 @@
-from cProfile import label
-from datetime import datetime
-from turtle import onclick
-import pandas as pd
-import requests_cache
-import requests
-from retry_requests import retry
-import pandas as pd
-import tkinter as tk
-import requests
+# from cProfile import label
+# from datetime import datetime
+# from turtle import onclick
+# import pandas as pd
+# import requests_cache
+# import requests
+# from retry_requests import retry
 
+# from flask import Flask, app, jsonify, render_template, request
+# import tkinter as tk
+import requests
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Подключаем папку templates для HTML
+templates = Jinja2Templates(directory="templates")
 key = "e1cbe0e09b684aac88d8864e1aa3be94"
 url = "https://api.weatherbit.io/v2.0/current"
 
-# def err(lat, lon):
-#     try:
-#         lat = float(lat.replace(',', '.').strip())
-#         lon = float(lon.replace(',', '.').strip())
-#     except ValueError:
-#         return None, "Координаты должны быть числами"
-#     if lat<-90 or lat>90:
-#         return None, "Широта должна быть в диапазоне -90..90"
-#     if lon<-180 or lon>180:
-#         return None, "Долгота должна быть в диапазоне -180..180"
-#     return lat, lon, None
 
 coord = {
 #==========GOMEL=============
@@ -50,47 +43,36 @@ coord = {
 #==========MINSK=============
 }
 
-def data_url(lat, lon):
+def data_url(region_id: str) -> dict:
+    if region_id not in coord:
+        return ValueError ("Неизвестный регион")
+    
+    lat, lon = coord[region_id]
     parametrs = {
         "lat": lat,
         "lon": lon,
         "key": key,
-        "lang": "be",
+        "lang": "ru",
         "units": "M"
     }
-    response = requests.get(url, params=parametrs)
-    print(response.status_code)
-    data = response.json()
-    dt = data["data"][0]
-    city = dt.get("city_name", "-")
-    temp = dt.get("temp", "-")
-    descr = dt.get("weather", {}).get("description", "—")
-    return f"{city}: {round(temp)}°C, {descr}"
 
-def err(region_id):
-    lat, lon = coord[region_id]
-    try: 
-        result = data_url(lat, lon)
-        label.config(text=result)
-    except Exception as e:
-        label.config(text=f"Ошибка: {e}")
+    try:
+        r = requests.get(url, params=parametrs, timeout=10)
+        r.raise_for_status()
+        data = r.json()   
+
+        if "data" not in data or not data["data"]:
+            raise RuntimeError("Неверный ответ от API")
         
-root = tk.Tk()
-root.title("Погода в районах Гомельской области")
+        dt = data["data"][0] 
+        return {
+            "sity": dt.get("city", "-"),
+            "temp": round(dt.get("temp", 0)),
+            "descr": dt.get("weather", {}).get("description", "-"),
+            "icon": dt.get("weather", {}).get("icon", "")
+        }
 
-label_city = tk.Label(root, text="Выберите район", font=("Arial", 16))
-label_city.pack(pady=10)
-
-label_temp = tk.Label(root, text="—", font=("Arial", 14))
-label_temp.pack(pady=10)
-
-# создаём кнопки для всех районов
-frame = tk.Frame(root)
-frame.pack(pady=10)
-
-for region_name in coord.keys():
-    btn = tk.Button(frame, text=region_name, width=20,
-                    command=lambda r=region_name: onclick(r))
-    btn.pack(pady=2)
-
-root.mainloop()
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Ошибка сети: {e}")
+    except Exception as e:
+        raise RuntimeError(f"Ошибка обработки данных: {e}")
