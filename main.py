@@ -1,93 +1,158 @@
-# uvicorn main:app --reload --host 0.0.0.0 --port 8000
-# uvicorn main:app --reload --host 127.0.0.1 --port 8000
-from fastapi import FastAPI, Request, HTTPException, Form
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+# main.py
+import os
+import logging
+import mimetypes
+from typing import Callable, List
 
-from api import data_url
+from fastapi import FastAPI, Request, Path, HTTPException
+from fastapi.responses import HTMLResponse, PlainTextResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from jinja2 import TemplateNotFound
+
+# Логирование
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logger = logging.getLogger("main")
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+# Директории
+TEMPLATES_DIR = "templates"
+STATIC_DIR = "static"
+IMGS_DIR = "imgs"
 
+# Проверка наличия директорий (логируем, но не падаем)
+for d in (TEMPLATES_DIR, STATIC_DIR, IMGS_DIR):
+    if not os.path.isdir(d):
+        logger.warning("Директория не найдена: %s", d)
+
+# Монтируем статические директории
+# /static -> static
+try:
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    logger.info("Mounted /static -> %s", STATIC_DIR)
+except Exception as exc:
+    logger.exception("Не удалось смонтировать /static: %s", exc)
+
+# /imgs -> imgs (опционально удобный доступ к картинкам)
+try:
+    app.mount("/imgs", StaticFiles(directory=IMGS_DIR), name="imgs")
+    logger.info("Mounted /imgs -> %s", IMGS_DIR)
+except Exception as exc:
+    logger.exception("Не удалось смонтировать /imgs: %s", exc)
+
+# Шаблоны
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+# Helper для шаблонов: {{ static('style.css') }} -> /static/style.css
+def _static_url(path: str) -> str:
+    return f"/static/{path.lstrip('/')}"
+templates.env.globals['static'] = _static_url
+
+# Helper для шаблонов: {{ img('brest.png') }} -> /imgs/brest.png
+def _img_url(path: str) -> str:
+    return f"/imgs/{path.lstrip('/')}"
+templates.env.globals['img'] = _img_url
+
+# Список городов (явные маршруты)
+CITIES: List[str] = ["gomel", "minsk", "mogilev", "vitebsk", "grodno", "brest"]
 
 @app.get("/", response_class=HTMLResponse)
-async def main_page(request: Request):
-    return templates.TemplateResponse("main.html", {"request": request})
-
-
-@app.get("/gomel", response_class=HTMLResponse)
-async def gomel_page_get(request: Request):
-    # Возвращает страницу с пустым начальным состоянием
-    return templates.TemplateResponse("gomel.html", {"request": request, "temp": None, "descr": None, "icon_url": ""})
-
-
-@app.post("/gomel/select", response_class=HTMLResponse)
-async def gomel_page_select(request: Request, region: str = Form(...)):
-    """
-    Обработчик формы. Ожидает поле form name="region".
-    Возвращает ту же страницу gomel.html, передавая temp, descr, icon_url для отображения.
-    """
+async def index(request: Request):
     try:
-        data = data_url(region)
-        temp = data.get("temp")
-        descr = data.get("descr")
-        icon = data.get("icon")
-        icon_url = f"https://www.weatherbit.io/static/img/icons/{icon}.png" if icon else ""
-    except ValueError as e:
-        temp, descr, icon_url = None, str(e), ""
-    except RuntimeError as e:
-        temp, descr, icon_url = None, str(e), ""
+        return templates.TemplateResponse("main.html", {"request": request})
+    except TemplateNotFound:
+        logger.error("templates/main.html не найден")
+        return HTMLResponse("<h1>Главная страница не найдена (templates/main.html)</h1>", status_code=200)
     except Exception:
-        temp, descr, icon_url = None, "Ошибка сервера", ""
+        logger.exception("Ошибка при рендеринге main.html")
+        raise HTTPException(status_code=500, detail="Ошибка сервера")
 
-    return templates.TemplateResponse(
-        "gomel.html",
-        {
-            "request": request,
-            "selected_region": region,
-            "temp": temp,
-            "descr": descr,
-            "icon_url": icon_url
-        }
-    )
+@app.get("/health", response_class=PlainTextResponse)
+async def health():
+    return "ok"
 
+def make_city_handler(city_name: str) -> Callable[[Request], HTMLResponse]:
+    async def handler(request: Request):
+        city = city_name.strip().lower()
+        candidates = [f"{city}.html", f"{city}.htm"]
+        for tmpl in candidates:
+            try:
+                return templates.TemplateResponse(tmpl, {"request": request})
+            except TemplateNotFound:
+                continue
+            except Exception:
+                logger.exception("Ошибка при рендеринге шаблона %s", tmpl)
+                raise HTTPException(status_code=500, detail="Ошибка сервера при рендеринге шаблона")
+        # fallback -> main.html
+        try:
+            logger.info("Шаблон для %s не найден, возвращаем main.html", city)
+            return templates.TemplateResponse("main.html", {"request": request})
+        except TemplateNotFound:
+            logger.error("templates/main.html не найден (fallback)")
+            return HTMLResponse(f"<h1>Шаблон для {city} не найден</h1>", status_code=200)
+        except Exception:
+            logger.exception("Ошибка при рендеринге main.html (fallback)")
+            raise HTTPException(status_code=500, detail="Ошибка сервера")
+    return handler
 
-@app.get("/minsk", response_class=HTMLResponse)
-async def minsk_page(request: Request):
-    return templates.TemplateResponse("minsk.html", {"request": request})
+# Регистрируем маршруты для городов и тестовые plain маршруты
+for c in CITIES:
+    app.add_api_route(f"/{c}", make_city_handler(c), methods=["GET"], response_class=HTMLResponse)
 
+    async def _plain(_: Request, city=c):
+        return PlainTextResponse(f"OK {city}")
+    app.add_api_route(f"/_plain_{c}", _plain, methods=["GET"], response_class=PlainTextResponse)
 
-@app.get("/mogilev", response_class=HTMLResponse)
-async def mogilev_page(request: Request):
-    return templates.TemplateResponse("mogilev.html", {"request": request})
+# Безопасная функция для imgs (защита от path traversal)
+def _safe_imgs_path(filename: str) -> str:
+    if ".." in filename or filename.startswith("/") or "\\" in filename:
+        raise HTTPException(status_code=400, detail="Некорректное имя файла")
+    return os.path.join(IMGS_DIR, filename)
 
+# Универсальный маршрут для отдачи файла из imgs: /images/{filename}
+@app.get("/images/{filename}", name="image_file")
+async def image_file(filename: str = Path(..., description="Имя файла в папке imgs")):
+    path = _safe_imgs_path(filename)
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="Файл не найден")
+    content_type, _ = mimetypes.guess_type(path)
+    return FileResponse(path, media_type=content_type or "application/octet-stream")
 
-@app.get("/vitebsk", response_class=HTMLResponse)
-async def vitebsk_page(request: Request):
-    return templates.TemplateResponse("vitebsk.html", {"request": request})
+# Удобный маршрут: /image/{city} отдаёт закреплённое изображение города
+CITY_IMAGE_MAP = {
+    "gomel": "gomel1.svg",
+    "brest": "brest.png",
+    "minsk": "minsk.png",
+    "mogilev": "mogilev.png",
+    "vitebsk": "vitebsk.png",
+    "grodno": "grodno.png",
+}
 
+@app.get("/image/{city}", name="image_by_city")
+async def image_by_city(city: str = Path(..., description="Код города")):
+    city_key = city.strip().lower()
+    filename = CITY_IMAGE_MAP.get(city_key)
+    if not filename:
+        raise HTTPException(status_code=404, detail="Изображение для города не задано")
+    path = _safe_imgs_path(filename)
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="Файл не найден")
+    content_type, _ = mimetypes.guess_type(path)
+    return FileResponse(path, media_type=content_type or "application/octet-stream")
 
-@app.get("/grodno", response_class=HTMLResponse)
-async def grodno_page(request: Request):
-    return templates.TemplateResponse("grodno.html", {"request": request})
-
-
-@app.get("/brest", response_class=HTMLResponse)
-async def brest_page(request: Request):
-    return templates.TemplateResponse("brest.html", {"request": request})
-
-
-@app.get("/weather/{region_id}")
-async def weather(region_id: str):
+# Catch-all fallback (в конце)
+@app.get("/{other}", response_class=HTMLResponse)
+async def catch_all(request: Request, other: str):
     try:
-        result = data_url(region_id)
-        return JSONResponse(content=result, status_code=200)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except RuntimeError as e:
-        raise HTTPException(status_code=502, detail=str(e))
+        return templates.TemplateResponse("main.html", {"request": request})
     except Exception:
-        raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера")
+        logger.exception("Ошибка в catch-all при рендеринге main.html")
+        return HTMLResponse("<h1>Главная страница (fallback) недоступна</h1>", status_code=200)
+
+if __name__ == "__main__":
+    import uvicorn
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", "8000"))
+    logger.info("Запускаем app на %s:%s", host, port)
+    uvicorn.run("main:app", host=host, port=port, reload=True)

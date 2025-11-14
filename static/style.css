@@ -43,33 +43,44 @@
 }
 #minsk{
     position: absolute;
-    top: 56%;
-    left: 41%;
+    top: 53%;
+    left: 40%;
+    font-size: 30px;
 }
 #gomel{
     position: absolute;
     top: 75.5%;
-    left: 74%;
+    left: 70%;
+    font-size: 30px;
+
 }
 #mogilev{
     position: absolute;
     top: 54%;
-    left: 70%;
+    left: 68%;
+    font-size: 30px;
+
 }
 #vitebsk{
     position: absolute;
     top: 30%;
-    left: 63%;
+    left: 58%;
+    font-size: 30px;
+
 }
 #grodno{
     position: absolute;
     top: 54.5%;
-    left: 10.5%;
+    left: 12.5%;
+    font-size: 30px;
+
 }
-#berst{
+#brest{
     position: absolute;
-    top: 77%;
-    left: 8%;
+    top: 75%;
+    left: 10%;
+    font-size: 30px;
+
 }
 .coord{
     width: 600px;               
