@@ -35,49 +35,11 @@
             <button class="rg_gor" id="hoyniki">Хойникский</button>
             <button class="rg_gor" id="chechersk">Чечерский</button>
         </div>
-        <div class="top">
-            <h2 id="city">—</h2>
-            <div class="temp" id="temp">—°C</div>
-        </div>
-
         <div class="weather-row">
+            <div class="temp" id="temp">—°C</div>
             <img id="kartinka" alt="" class="kartinka" />
             <div id="txt" class="txt">—</div>
         </div>
     </section>
-    <script>
-        document.querySelectorAll(".rg_gor").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const regionId = btn.id;
-
-            fetch(`/weather/${encodeURIComponent(regionId)}`, {
-            headers: { "Accept": "application/json" }
-            })
-            .then(res => {
-            const ct = res.headers.get("content-type") || "";
-            if (!res.ok) {
-                return res.text().then(t => { throw new Error(`HTTP ${res.status}: ${t}`); });
-            }
-            if (!ct.includes("application/json")) {
-                return res.text().then(t => { throw new Error("Ожидался JSON, пришёл HTML: " + t.slice(0, 120)); });
-            }
-            return res.json();
-            })
-            .then(data => {
-            if (data.error) {
-                alert("Ошибка: " + data.error);
-                return;
-            }
-            document.getElementById("city").textContent = data.city;
-            document.getElementById("temp").textContent = data.temp + "°C";
-            document.getElementById("txt").textContent = data.descr;
-            document.getElementById("kartinka").src =
-                `https://www.weatherbit.io/static/img/icons/${data.icon}.png`;
-            document.getElementById("kartinka").alt = data.descr || "";
-            })
-            .catch(err => alert("Ошибка запроса: " + err.message));
-        });
-        });
-    </script>
 </body>
 </html> 

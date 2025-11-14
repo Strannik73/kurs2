@@ -1,9 +1,11 @@
+# http://127.0.0.1:8000/docs#/default/weather_weather__region_id__get
 import requests
+from typing import Dict, Tuple
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-key = "e1cbe0e09b684aac88d8864e1aa3be94"
-url = "https://api.weatherbit.io/v2.0/current"
-
-coord = {
+# Координаты регионов
+coord: Dict[str, Tuple[float, float]] = {
     "br": (51.8, 30.3),
     "buda": (52.72, 30.57),
     "vetka": (52.56, 31.18),
@@ -27,7 +29,20 @@ coord = {
     "chechersk": (52.92, 30.92)
 }
 
+# Оставляем key и url как в вашем оригинале
+key = "e1cbe0e09b684aac88d8864e1aa3be94"
+url = "https://api.weatherbit.io/v2.0/current"
+
+# Сессия с retry для надёжности запросов
+_session = requests.Session()
+_retries = Retry(total=3, backoff_factor=0.5, status_forcelist=(429, 500, 502, 503, 504))
+_adapter = HTTPAdapter(max_retries=_retries)
+_session.mount("https://", _adapter)
+_session.mount("http://", _adapter)
+
+
 def data_url(region_id: str) -> dict:
+
     if region_id not in coord:
         raise ValueError("Неизвестный регион")
 
@@ -41,22 +56,31 @@ def data_url(region_id: str) -> dict:
     }
 
     try:
-        r = requests.get(url, params=params, timeout=10)
-        r.raise_for_status()
-        data = r.json()
+        resp = _session.get(url, params=params, timeout=10)
+        resp.raise_for_status()
+    except requests.exceptions.RequestException as exc:
+        raise RuntimeError(f"Ошибка сети: {exc}")
 
-        if "data" not in data or not data["data"]:
-            raise RuntimeError("Неверный ответ от API")
+    try:
+        payload = resp.json()
+    except ValueError as exc:
+        raise RuntimeError(f"Невалидный JSON в ответе API: {exc}")
 
-        dt = data["data"][0]
-        return {
-            "city": dt.get("city_name", "-"),
-            "temp": round(dt.get("temp", 0)),
-            "descr": dt.get("weather", {}).get("description", "-"),
-            "icon": dt.get("weather", {}).get("icon", "")
-        }
+    if not isinstance(payload, dict) or "data" not in payload or not payload["data"]:
+        raise RuntimeError("Неверный ответ от API: отсутствует поле data")
 
-    except requests.exceptions.RequestException as e:
-        raise RuntimeError(f"Ошибка сети: {e}")
-    except Exception as e:
-        raise RuntimeError(f"Ошибка обработки данных: {e}")
+    item = payload["data"][0]
+    if not isinstance(item, dict):
+        raise RuntimeError("Неверный формат данных в ответе API")
+
+    temp_raw = item.get("temp")
+    try:
+        temp = round(float(temp_raw)) if temp_raw is not None else 0
+    except (TypeError, ValueError):
+        temp = 0
+
+    weather = item.get("weather") or {}
+    descr = weather.get("description") or "-"
+    icon = weather.get("icon") or ""
+
+    return {"temp": temp, "descr": descr, "icon": icon}
