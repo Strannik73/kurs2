@@ -10,51 +10,42 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from jinja2 import TemplateNotFound
 
-# Логирование
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("main")
 
 app = FastAPI()
 
-# Директории
 TEMPLATES_DIR = "templates"
 STATIC_DIR = "static"
 IMGS_DIR = "imgs"
 
-# Проверка наличия директорий (логируем, но не падаем)
 for d in (TEMPLATES_DIR, STATIC_DIR, IMGS_DIR):
     if not os.path.isdir(d):
         logger.warning("Директория не найдена: %s", d)
 
-# Монтируем статические директории
-# /static -> static
 try:
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     logger.info("Mounted /static -> %s", STATIC_DIR)
 except Exception as exc:
     logger.exception("Не удалось смонтировать /static: %s", exc)
 
-# /imgs -> imgs (опционально удобный доступ к картинкам)
 try:
     app.mount("/imgs", StaticFiles(directory=IMGS_DIR), name="imgs")
     logger.info("Mounted /imgs -> %s", IMGS_DIR)
 except Exception as exc:
     logger.exception("Не удалось смонтировать /imgs: %s", exc)
 
-# Шаблоны
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
-# Helper для шаблонов: {{ static('style.css') }} -> /static/style.css
 def _static_url(path: str) -> str:
     return f"/static/{path.lstrip('/')}"
 templates.env.globals['static'] = _static_url
 
-# Helper для шаблонов: {{ img('brest.png') }} -> /imgs/brest.png
 def _img_url(path: str) -> str:
     return f"/imgs/{path.lstrip('/')}"
 templates.env.globals['img'] = _img_url
 
-# Список городов (явные маршруты)
 CITIES: List[str] = ["gomel", "minsk", "mogilev", "vitebsk", "grodno", "brest"]
 
 @app.get("/", response_class=HTMLResponse)
@@ -84,7 +75,6 @@ def make_city_handler(city_name: str) -> Callable[[Request], HTMLResponse]:
             except Exception:
                 logger.exception("Ошибка при рендеринге шаблона %s", tmpl)
                 raise HTTPException(status_code=500, detail="Ошибка сервера при рендеринге шаблона")
-        # fallback -> main.html
         try:
             logger.info("Шаблон для %s не найден, возвращаем main.html", city)
             return templates.TemplateResponse("main.html", {"request": request})
