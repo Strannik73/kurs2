@@ -126,16 +126,21 @@
   align-items: center;
   margin-bottom: 12px;
 }
+/* .BELARUS{} */
 #imgG{
     display: flex;
     justify-content: center;
     align-items: center;
     width: 90%;    
     height: 80%;
+    border: 3px solid #000;
+    border-radius:12px;
 }
 .rg_gor{
     position: absolute;
-    font-size: 10px;;
+    font-size: 10px;
+    color: #000000;
+    text-decoration: none;
 }
 /* gomel */
 #br{
@@ -549,4 +554,72 @@
 #shumilinski{
     top: 29%;
     left: 57%;
+}
+#berestovitski{
+    top: 65%;
+    left: 15%;
+}
+#volkovisski{
+    top: 69%;
+    left: 26%;
+}
+#voronovski{
+    top: 35.5%;
+    left: 43%;    
+}
+#grodnenski{
+    top: 49%;
+    left: 20%;
+}
+#dyatlovski{
+    top: 60%;
+    left: 52%;
+}
+#zelvenski{
+    top: 68%;
+    left: 39%;
+}
+#ivevski{
+    top: 39%;
+    left: 65%;
+}
+#korelichski{
+    top: 57%;
+    left: 75%;
+}
+#lidski{
+    top: 47%;
+    left: 50%;
+}
+#mostovski{
+    top: 61%;
+    left: 35%;
+}
+#novogrudski{
+    top: 50%;
+    left: 65%;
+}
+#ostrovetski{
+    top: 12%;
+    left: 69%;
+}
+#oshmyanski{
+    top: 24%;
+    left: 67%;
+}
+#svislochski{
+    top: 77%;
+    left: 24%;
+}
+#slonimski{
+    top: 73%;
+    left: 50%;
+}
+#smorgonski{
+    top: 20%;
+    left: 79%;
+}
+#schuchinski{
+    top: 49%;
+    left: 35%;
 }

@@ -86,7 +86,6 @@ def make_city_handler(city_name: str) -> Callable[[Request], HTMLResponse]:
             raise HTTPException(status_code=500, detail="Ошибка сервера")
     return handler
 
-# Регистрируем маршруты для городов и тестовые plain маршруты
 for c in CITIES:
     app.add_api_route(f"/{c}", make_city_handler(c), methods=["GET"], response_class=HTMLResponse)
 
@@ -94,13 +93,11 @@ for c in CITIES:
         return PlainTextResponse(f"OK {city}")
     app.add_api_route(f"/_plain_{c}", _plain, methods=["GET"], response_class=PlainTextResponse)
 
-# Безопасная функция для imgs (защита от path traversal)
 def _safe_imgs_path(filename: str) -> str:
     if ".." in filename or filename.startswith("/") or "\\" in filename:
         raise HTTPException(status_code=400, detail="Некорректное имя файла")
     return os.path.join(IMGS_DIR, filename)
 
-# Универсальный маршрут для отдачи файла из imgs: /images/{filename}
 @app.get("/images/{filename}", name="image_file")
 async def image_file(filename: str = Path(..., description="Имя файла в папке imgs")):
     path = _safe_imgs_path(filename)
@@ -109,7 +106,6 @@ async def image_file(filename: str = Path(..., description="Имя файла в
     content_type, _ = mimetypes.guess_type(path)
     return FileResponse(path, media_type=content_type or "application/octet-stream")
 
-# Удобный маршрут: /image/{city} отдаёт закреплённое изображение города
 CITY_IMAGE_MAP = {
     "gomel": "gomel1.svg",
     "brest": "brest.png",
@@ -131,7 +127,6 @@ async def image_by_city(city: str = Path(..., description="Код города")
     content_type, _ = mimetypes.guess_type(path)
     return FileResponse(path, media_type=content_type or "application/octet-stream")
 
-# Catch-all fallback (в конце)
 @app.get("/{other}", response_class=HTMLResponse)
 async def catch_all(request: Request, other: str):
     try:
