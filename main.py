@@ -1,15 +1,15 @@
-# main.py
 import os
 import logging
 import mimetypes
 from typing import Callable, List
 
 from fastapi import FastAPI, Request, Path, HTTPException
-from fastapi.responses import HTMLResponse, PlainTextResponse, FileResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from jinja2 import TemplateNotFound
 
+from api import data_url   # импортируем нашу функцию погоды
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("main")
@@ -62,6 +62,17 @@ async def index(request: Request):
 @app.get("/health", response_class=PlainTextResponse)
 async def health():
     return "ok"
+
+# Новый эндпоинт для погоды
+@app.get("/weather/{region_id}", response_class=JSONResponse)
+async def weather(region_id: str):
+    try:
+        data = data_url(region_id)
+        return JSONResponse(data)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
 
 def make_city_handler(city_name: str) -> Callable[[Request], HTMLResponse]:
     async def handler(request: Request):

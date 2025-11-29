@@ -107,39 +107,28 @@ def data_url(region_id: str) -> dict:
     try:
         resp = _session.get(url, params=params, timeout=10)
         resp.raise_for_status()
+        payload = resp.json()
     except requests.exceptions.RequestException as exc:
         # Сетевая ошибка или таймаут
-        logger.error("Сетевая ошибка при обращении к weatherbit для %s (lat=%s lon=%s): %s", region_id, lat, lon, exc)
+        logger.error("Сетевая ошибка: %s", exc)
         raise RuntimeError(f"Ошибка сети: {exc}")
-
-    try:
-        payload = resp.json()
     except ValueError as exc:
-        # Не удалось распарсить JSON
-        logger.error("Невалидный JSON от weatherbit для %s: %s", region_id, exc)
-        raise RuntimeError(f"Невалидный JSON в ответе API: {exc}")
+        logger.error("Невалидный JSON: %s", exc)
+        raise RuntimeError(f"Невалидный JSON: {exc}")
 
-    # Проверяем корректность структуры ответа
     if not isinstance(payload, dict) or "data" not in payload or not payload["data"]:
-        logger.error("Неверный ответ от API для %s: %r", region_id, payload)
         raise RuntimeError("Неверный ответ от API: отсутствует поле data")
 
     item = payload["data"][0]
-    if not isinstance(item, dict):
-        logger.error("Неверный формат данных в ответе API для %s: %r", region_id, item)
-        raise RuntimeError("Неверный формат данных в ответе API")
-
-    # Обрабатываем температуру безопасно
     temp_raw = item.get("temp")
     try:
         temp = round(float(temp_raw)) if temp_raw is not None else 0
     except (TypeError, ValueError):
-        logger.warning("Температура некорректна для %s: %r", region_id, temp_raw)
         temp = 0
 
     weather = item.get("weather") or {}
     descr = weather.get("description") or "-"
     icon = weather.get("icon") or ""
+    city = item.get("city_name") or "Неизвестно"
 
-    # Возвращаем только минимально необходимое
-    return {"temp": temp, "descr": descr, "icon": icon}
+    return {"city": city, "temp": temp, "descr": descr, "icon": icon}
