@@ -343,5 +343,3 @@ if __name__ == "__main__":
 # @app.exception_handler(403)
 # async def forbidden(request: Request, exc):
 #     return templates.TemplateResponse("403.html", {"request": request}, status_code=403)
-
-
